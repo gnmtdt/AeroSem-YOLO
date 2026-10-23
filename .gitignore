@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Environments and local configuration
+.venv/
+venv/
+.env
+.env.*
+
+# Editors and operating-system files
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Datasets, experiments, and generated artifacts at repository root
+/datasets/
+/data/
+/runs/
+/logs/
+/wandb/
+/mlruns/
+/dist/
+/build/
+*.egg-info/
+
+# Model artifacts are published as checksummed release assets, not Git blobs
+weights/
+checkpoints/
+*.pt
+*.pth
+*.onnx
+*.engine
+*.torchscript
+

@@ -1,0 +1,263 @@
+# Ultralytics 🚀 AGPL-3.0 License - https://ultralytics.com/license
+
+# Global configuration YAML with settings and hyperparameters for YOLO training, validation, prediction and export
+# For documentation see https://docs.ultralytics.com/usage/cfg/
+
+task: detect # (str) YOLO task, i.e. detect, segment, classify, pose, obb
+mode: train # (str) YOLO mode, i.e. train, val, predict, export, track, benchmark
+
+# Train settings -------------------------------------------------------------------------------------------------------
+model: # (str, optional) path to model file, i.e. yolov8n.pt, yolov8n.yaml
+model_scale: # (str, optional) explicit YAML scale override for models with `scales` (e.g. n/s/m/l/x); overrides filename guessing
+data: # (str, optional) path to data file, i.e. coco8.yaml
+epochs: 100 # (int) number of epochs to train for
+time: # (float, optional) number of hours to train for, overrides epochs if supplied
+patience: 100 # (int) epochs to wait for no observable improvement for early stopping of training
+batch: 16 # (int) number of images per batch (-1 for AutoBatch)
+imgsz: 640 # (int | list) input images size as int for train and val modes, or list[h,w] for predict and export modes
+save: True # (bool) save train checkpoints and predict results
+save_period: -1 # (int) Save checkpoint every x epochs (disabled if < 1)
+cache: False # (bool) True/ram, disk or False. Use cache for data loading
+device: # (int | str | list) device: CUDA device=0 or [0,1,2,3] or "cpu/mps" or -1 or [-1,-1] to auto-select idle GPUs
+workers: 8 # (int) number of worker threads for data loading (per RANK if DDP)
+project: # (str, optional) project name
+name: # (str, optional) experiment name, results saved to 'project/name' directory
+exist_ok: False # (bool) whether to overwrite existing experiment
+pretrained: True # (bool | str) whether to use a pretrained model (bool) or a model to load weights from (str)
+optimizer: auto # (str) optimizer to use, choices=[SGD, Adam, Adamax, AdamW, NAdam, RAdam, RMSProp, auto]
+verbose: True # (bool) whether to print verbose output
+debug: False # (bool) whether to print DEBUG diagnostic logs (multimodal inference)
+timedebug: False # (bool) 结构化训练计时日志，仅输出到 {save_dir}/timedebug.log，不影响 results.csv
+seed: 0 # (int) random seed for reproducibility
+deterministic: True # (bool) whether to enable deterministic mode
+single_cls: False # (bool) train multi-class data as single-class
+rect: False # (bool) rectangular training if mode='train' or rectangular validation if mode='val'
+cos_lr: False # (bool) use cosine learning rate scheduler
+close_mosaic: 10 # (int) disable mosaic augmentation for final epochs (0 to disable)
+resume: False # (bool) resume training from last checkpoint
+amp: True # (bool) Automatic Mixed Precision (AMP) training, choices=[True, False], True runs AMP check
+fraction: 1.0 # (float) dataset fraction to train on (default is 1.0, all images in train set)
+profile: False # (bool) profile ONNX and TensorRT speeds during training for loggers
+freeze: # (int | list, optional) freeze first n layers, or freeze list of layer indices during training
+multi_scale: False # (bool) Whether to use multiscale during training
+# Segmentation
+overlap_mask: True # (bool) merge object masks into a single image mask during training (segment train only)
+mask_ratio: 4 # (int) mask downsample ratio (segment train only)
+# Classification
+dropout: 0.0 # (float) use dropout regularization (classify train only)
+# Distillation
+distill: # (list|tuple, optional) distillation config, format: [yaml_path, mode], mode in {output, feature, both}
+distill_weight: 1.0          # (float) overall distillation loss multiplier
+distill_feature_weight: 1.0  # (float) feature distillation loss weight (after warmup)
+distill_output_weight: 1.0   # (float) output distillation loss weight (after warmup)
+distill_feature_warmup: 10   # (int) epochs to linearly ramp feature distill weight (0 -> distill_feature_weight)
+distill_output_warmup: 5     # (int) epochs to linearly ramp output distill weight (0 -> distill_output_weight)
+distill_feature_fg: 1.0      # (float) feature distill foreground SmoothL1 sub-weight
+distill_feature_bg: 0.25     # (float) feature distill background SmoothL1 sub-weight
+distill_feature_cwd: 0.5     # (float) feature distill channel-wise KL sub-weight
+distill_feature_ctx: 0.25    # (float) feature distill context cosine sub-weight
+distill_feature_tau: 1.0     # (float) feature distill CWD softmax temperature
+distill_output_cls: 1.0      # (float) output distill cls sub-weight
+distill_output_loc: 1.0      # (float) output distill loc/box sub-weight
+distill_output_overall: 0.5  # (float) output distill overall multiplier
+# YOLOVO (open-vocabulary multi-modal detection)
+yolovo_debug: False           # (bool) YOLOVO-only pipeline diagnostics, written to {save_dir}/yolovo_debug.log
+text_encoder_lr: 0.0          # (float) YOLOVO: text encoder learning rate; 0 = frozen, >0 = fine-tune
+max_texts: 80                 # (int) YOLOVO: max negative text prompts sampled per batch (positives always included)
+object_paste: 0.10            # (float) YOLOVO: per-object ObjectPaste probability; enabled only by YOLOVO transform path
+# AFSS
+afss_enabled: false # (bool) enable AFSS multi-task training runtime for YOLOMM
+afss_warmup_epochs: 10 # (int) epochs to keep full-dataset bootstrap before adaptive selection
+afss_state_update_interval: 5 # (int) epochs between AFSS state refreshes
+afss_easy_threshold: 0.85 # (float) sufficiency threshold above which a sample is considered easy
+afss_hard_threshold: 0.55 # (float) sufficiency threshold below which a sample is considered hard
+afss_easy_ratio: 0.02 # (float) target easy-sample participation ratio per epoch
+afss_easy_review_gap: 10 # (int) epochs before easy samples become forced-review candidates
+afss_easy_forced_review_cap_ratio: 0.5 # (float) max forced-review share inside easy quota
+afss_moderate_ratio: 0.40 # (float) target moderate-sample participation ratio per epoch
+afss_moderate_cover_gap: 3 # (int) epochs before moderate samples become forced-coverage candidates
+afss_score_on_train_eval: true # (bool) evaluate AFSS sufficiency via a dedicated train-eval scorer
+afss_score_conf: 0.25 # (float) AFSS-only confidence threshold used for per-sample scoring
+afss_score_iou: 0.7 # (float) AFSS-only IoU threshold used consistently for per-sample NMS and TP matching
+afss_state_ema_alpha: 0.3 # (float) EMA alpha for AFSS sufficiency state updates
+afss_fail_on_all_hard_after_scoring: true # (bool) fail fast if all valid samples remain hard after a scoring refresh
+afss_allow_generated_x_to_easy: false # (bool) allow generated-x samples to enter easy bucket
+afss_state_dir: afss # (str) relative folder under save_dir for AFSS state snapshots
+afss_seed: 0 # (int) AFSS sampler seed
+afss_task_name: detect # (str) active task name for AFSS state/resume compatibility
+afss_task_metrics: [precision, recall] # (list) shared compatibility fields for AFSS state snapshots
+afss_tasks: # (dict) multi-task AFSS enable matrix, unknown task keys are rejected
+  detect: true
+  obb: false
+  pose: false
+  segment: false
+  classify: false
+afss_task_overrides: {} # (dict) per-task AFSS overrides, key must be one of detect/obb/pose/segment/classify
+
+# Val/Test settings ----------------------------------------------------------------------------------------------------
+val: True # (bool) validate/test during training
+split: val # (str) dataset split to use for validation, i.e. 'val', 'test' or 'train'
+save_json: False # (bool) save results to JSON file
+conf: # (float, optional) object confidence threshold for detection (default 0.25 predict, 0.001 val)
+iou: 0.7 # (float) intersection over union (IoU) threshold for NMS
+max_det: 300 # (int) maximum number of detections per image
+half: False # (bool) use half precision (FP16)
+dnn: False # (bool) use OpenCV DNN for ONNX inference
+plots: True # (bool) save plots and images during train/val
+
+# Predict settings -----------------------------------------------------------------------------------------------------
+source: # (str, optional) source directory for images or videos
+vid_stride: 1 # (int) video frame-rate stride
+stream_buffer: False # (bool) buffer all streaming frames (True) or return the most recent frame (False)
+visualize: False # (bool) visualize model features
+augment: False # (bool) apply image augmentation to prediction sources
+agnostic_nms: False # (bool) class-agnostic NMS
+classes: # (int | list[int], optional) filter results by class, i.e. classes=0, or classes=[0,2,3]
+retina_masks: False # (bool) use high-resolution segmentation masks
+embed: # (list[int], optional) return feature vectors/embeddings from given layers
+
+# Visualize settings ---------------------------------------------------------------------------------------------------
+show: False # (bool) show predicted images and videos if environment allows
+save_frames: False # (bool) save predicted individual video frames
+save_txt: False # (bool) save results as .txt file
+save_conf: False # (bool) save results with confidence scores
+save_crop: False # (bool) save cropped images with results
+crop: False # (bool) save instance crops with annotations (multimodal)
+show_labels: True # (bool) show prediction labels, i.e. 'person'
+show_conf: True # (bool) show prediction confidence, i.e. '0.99'
+show_boxes: True # (bool) show prediction boxes
+line_width: # (int, optional) line width of the bounding boxes. Scaled to image size if None.
+font_size: # (int, optional) font size for bbox labels. Derived from line_width if None.
+show_filename: False # (bool) show source image filename on inference result
+overlay_opacity: 50 # (int|float) vis() 热力图叠加透明度 0-100%，值越大热力图越不透明
+
+# Export settings ------------------------------------------------------------------------------------------------------
+format: torchscript # (str) format to export to, choices at https://docs.ultralytics.com/modes/export/#export-formats
+keras: False # (bool) use Kera=s
+optimize: False # (bool) TorchScript: optimize for mobile
+int8: False # (bool) CoreML/TF INT8 quantization
+dynamic: False # (bool) ONNX/TF/TensorRT: dynamic axes
+simplify: True # (bool) ONNX: simplify model using `onnxslim`
+opset: # (int, optional) ONNX: opset version
+workspace: # (float, optional) TensorRT: workspace size (GiB), `None` will let TensorRT auto-allocate memory
+nms: False # (bool) CoreML: add NMS
+
+# Hyperparameters ------------------------------------------------------------------------------------------------------
+lr0: 0.01 # (float) initial learning rate (i.e. SGD=1E-2, Adam=1E-3)
+lrf: 0.01 # (float) final learning rate (lr0 * lrf)
+momentum: 0.937 # (float) SGD momentum/Adam beta1
+weight_decay: 0.0005 # (float) optimizer weight decay 5e-4
+warmup_epochs: 3.0 # (float) warmup epochs (fractions ok)
+warmup_momentum: 0.8 # (float) warmup initial momentum
+warmup_bias_lr: 0.1 # (float) warmup initial bias lr
+box: 7.5 # (float) box loss gain
+cls: 0.5 # (float) cls loss gain (scale with pixels)
+dfl: 1.5 # (float) dfl loss gain
+loss_cls: # (str, optional) cls loss type. Default: YOLOMM=bce, RTDETRMM=varifocal; choices: bce | focal | varifocal | efl | qfl
+loss_box: ciou # (str) IoU loss type. YOLOMM: iou | giou | diou | ciou | siou | eiou | wiou | alphaiou | nwd | mpdiou; YOLOMM(OBB): prob | ciou | none
+loss_bbox: l1 # (str) bbox L1 loss for RTDETRMM: l1 | none
+loss_giou: giou # (str) bbox GIoU loss for RTDETRMM: giou | none
+loss_dfl: True # (bool) enable Distribution Focal Loss (DFL) for YOLOMM
+loss_aux: True # (bool) enable auxiliary decoder losses for RTDETRMM
+loss_mask: bce # (str) segmentation mask loss type. Options: bce | dice | focal_tversky | combo
+loss_profile: standard # (str) loss strategy profile: standard | yolo26
+loss_pred_adapter: auto # (str) prediction adapter: auto | standard | lspcd
+aux_semseg_gain: 0.1 # (float) semantic segmentation auxiliary loss gain (Segment26/Proto26 only)
+ignore_index: 255  # semantic segmentation ignore label
+loss_sem: ce  # (str) semantic segmentation loss type: ce | dice | combo | ce_dice
+pose: 12.0 # (float) pose loss gain
+kobj: 1.0 # (float) keypoint obj loss gain
+angle: 1.0 # (float) OBB angle loss gain (OBB/OBB26)
+rle: 0.1 # (float) Pose26 RLE loss gain
+nbs: 64 # (int) nominal batch size
+hsv_h: 0.015 # (float) image HSV-Hue augmentation (fraction)
+hsv_s: 0.7 # (float) image HSV-Saturation augmentation (fraction)
+hsv_v: 0.4 # (float) image HSV-Value augmentation (fraction)
+degrees: 0.0 # (float) image rotation (+/- deg)
+translate: 0.1 # (float) image translation (+/- fraction)
+scale: 0.5 # (float) image scale (+/- gain), for augmentation
+img_scale: # (float, optional) image scale (+/- gain), overrides `scale` when set (useful when `scale` is used for model scales)
+model_scale: # (str, optional) model compound scale key for YAML `scales`, e.g. n/s/m/l/x
+shear: 0.0 # (float) image shear (+/- deg)
+perspective: 0.0 # (float) image perspective (+/- fraction), range 0-0.001
+flipud: 0.0 # (float) image flip up-down (probability)
+fliplr: 0.5 # (float) image flip left-right (probability)
+bgr: 0.0 # (float) image channel BGR (probability)
+mosaic: 1.0 # (float) image mosaic (probability)
+mixup: 0.0 # (float) image mixup (probability)
+cutmix: 0.0 # (float) image cutmix (probability)
+copy_paste: 0.0 # (float) segment copy-paste (probability)
+copy_paste_mode: "flip" # (str) the method to do copy_paste augmentation (flip, mixup)
+auto_augment: randaugment # (str) auto augmentation policy for classification (randaugment, autoaugment, augmix)
+erasing: 0.4 # (float) probability of random erasing during classification training (0-0.9), 0 means no erasing, must be less than 1.0.
+
+# Custom config.yaml ---------------------------------------------------------------------------------------------------
+cfg: # (str, optional) for overriding defaults.yaml
+
+# Tracker settings ------------------------------------------------------------------------------------------------------
+tracker: botsort.yaml # (str) tracker type, choices=[botsort.yaml, bytetrack.yaml]
+
+# ====================
+# YOLOMM EXTENSIONS
+# ====================
+
+# Multimodal project version (for banner/logging)
+mm_project_version: "26.5.30"  # (str) multimodal project display version (single source of truth)
+
+# Error report settings
+error_report_multi: true  # (bool) true=保留多份报告(带日期+序号后缀), false=覆盖模式(仅一份)
+
+# Multimodal inference settings
+modality:  # (str, optional) multimodal inference mode ['rgb', 'depth', 'thermal', 'ir', None]
+find_unused_parameters:  # (bool | None) DDP find_unused_parameters; None=auto (True for YOLO, False for YOLOMM/RTDETRMM)
+strict_match: true  # (bool) batch inference matching strategy (True=strict match, False=intersection mode)
+
+# Multimodal training augmentation (image RGB+X)
+use_multimodal_aug: true      # (bool) use independent mm_transforms() pipeline for YOLOMultiModalImageDataset
+
+# RGB-exclusive non-geometric augmentation (MultiModalAlbumentations)
+mm_rgb_albu_enable: true      # (bool) enable RGB-only non-geometric augmentation
+mm_rgb_albu_cfg: []           # (list) optional albumentations ops for RGB (non-spatial only)
+
+# Slight Asynchronous Geometric Perturbation
+mm_async_geo_p: 0.0           # (float) probability to apply async perturbation
+mm_async_geo_translate_px: [1, 2]   # (list[int,int]) random pixel shift range
+mm_async_geo_rotate_deg: [-0.5, 0.5]# (list[float,float]) small rotation range in degrees
+mm_async_geo_target: x        # (str) target modality: 'x'|'rgb'|'random'
+mm_async_geo_border: 114      # (int) border fill value for warpAffine
+
+# Modal Dropout / Asymmetric Erasure
+mm_modal_dropout_p: 0.0       # (float) probability to erase a random rectangle on a single modality
+mm_modal_dropout_area: [0.02, 0.15] # (list[float,float]) area ratio range
+mm_modal_dropout_ratio: [0.5, 2.0]  # (list[float,float]) aspect ratio range
+mm_modal_dropout_target: x    # (str) target modality: 'x'|'rgb'|'random'
+mm_modal_dropout_fill: zero   # (str) fill mode: 'zero'|'one'|'const'|'noise'
+mm_modal_dropout_fill_const: 114 # (int) const fill value when fill='const'
+
+# Optional X-only non-geometric enhancement (default disabled)
+mm_x_non_geo_enable: false
+mm_x_non_geo_cfg: []
+
+# ====================
+# YOLO26 LOSS PROFILE OPTIONS
+# ====================
+# loss_profile controls high-level YOLOMM detection-loss strategy.
+# - standard: default v8-style criterion selection
+# - yolo26: enable YOLO26 ProgLoss/STAL/stride-enhanced assigner knobs
+# loss26 remains as a backward-compatible alias; prefer loss_profile=yolo26 in new configs.
+
+loss26: false             # (bool, deprecated alias) true => loss_profile=yolo26
+loss_prog: true           # (bool) enable ProgLoss progressive weight decay (o2m: 0.8->0.1, o2o: 0.2->0.9)
+loss_stal: true           # (bool) enable STAL (Selective Top-K Aligned Learning) with topk2 filtering
+loss_stride_enhance: true # (bool) enable small object stride enhancement in TaskAlignedAssigner
+
+# ====================
+# FEATURE ALIGNMENT LOSS
+# ====================
+# Multimodal RGB-X feature alignment loss for improved cross-modal learning
+
+loss_align: false        # (bool) enable feature alignment loss for multimodal training
+loss_align_weight: 1.0  # (float) weight for feature alignment loss
+loss_align_type: cosine  # (str) alignment loss type: cosine | l2 | correlation | mmd | contrastive
+loss_align_temperature: 0.1  # (float) temperature for cosine/contrastive alignment
+loss_align_detach_x: true  # (bool) detach X features to prevent gradient from flowing to X branch

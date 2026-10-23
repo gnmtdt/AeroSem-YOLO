@@ -1,0 +1,62 @@
+[build-system]
+requires = ["setuptools>=70", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aerosem-yolo"
+version = "0.1.0"
+description = "Semantic-guided object detection for small aerial targets"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "AGPL-3.0-only"}
+keywords = ["object-detection", "aerial-imagery", "multimodal", "yolo", "mobileclip"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: GNU Affero General Public License v3",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+  "numpy>=1.23",
+  "matplotlib>=3.3",
+  "opencv-python>=4.6",
+  "pillow>=9.0",
+  "pyyaml>=6.0",
+  "requests>=2.28",
+  "scipy>=1.8",
+  "torch>=2.0",
+  "torchvision>=0.15",
+  "tqdm>=4.64",
+  "psutil>=5.9",
+  "py-cpuinfo>=9.0",
+  "pandas>=1.5",
+  "polars>=0.20",
+  "ultralytics-thop>=2.0.18",
+  "timm>=0.9",
+  "open-clip-torch>=2.24",
+  "einops>=0.7",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.6"]
+
+[project.scripts]
+aerosem-train = "scripts.train:main"
+aerosem-evaluate = "scripts.evaluate:main"
+aerosem-predict = "scripts.predict:main"
+
+[tool.setuptools]
+packages = {find = {where = ["."], include = ["ultralytics", "ultralytics.*", "scripts"]}}
+include-package-data = true
+
+[tool.setuptools.package-data]
+ultralytics = ["**/*.yaml", "**/*.yml", "**/*.json", "**/*.txt", "**/*.html"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+

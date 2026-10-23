@@ -1,0 +1,47 @@
+# Ultralytics 🚀 AGPL-3.0 License - https://ultralytics.com/license
+
+__version__ = "8.3.163"
+
+import os
+
+# Set ENV variables (place before imports)
+if not os.environ.get("OMP_NUM_THREADS"):
+    os.environ["OMP_NUM_THREADS"] = "1"  # default for reduced CPU utilization during training
+
+# Import standard models
+from ultralytics.models import NAS, RTDETR, SAM, YOLO, YOLOE, FastSAM, YOLOWorld
+
+# Import YOLOVO (conditional)
+try:
+    from ultralytics.models.yolovo.model import YOLOVO
+    _YOLOVO_AVAILABLE = True
+except ImportError:
+    _YOLOVO_AVAILABLE = False
+    YOLOVO = None  # Set to None if not available
+
+from ultralytics.utils import ASSETS, SETTINGS
+from ultralytics.utils.checks import check_yolo as checks
+from ultralytics.utils.downloads import download
+
+settings = SETTINGS
+
+# Dynamic __all__ based on availability
+__all__ = [
+    "__version__",
+    "ASSETS",
+    "YOLO",
+    "YOLOWorld",
+    "YOLOE",
+    "NAS",
+    "SAM",
+    "FastSAM",
+    "RTDETR",
+    "checks",
+    "download",
+    "settings",
+]
+
+if _YOLOVO_AVAILABLE:
+    __all__.append("YOLOVO")
+
+__all__ = tuple(__all__)
