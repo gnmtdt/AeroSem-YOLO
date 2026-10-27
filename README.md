@@ -93,7 +93,7 @@ large model weights are deliberately excluded.
 Python 3.10 or newer is recommended.
 
 ```bash
-git clone <YOUR_REPOSITORY_URL>
+git clone https://github.com/gnmtdt/AeroSem-YOLO.git
 cd AeroSem-YOLO
 python -m venv .venv
 ```
@@ -165,7 +165,7 @@ python scripts/train.py \
   --imgsz 640 \
   --batch 32 \
   --device 0 \
-  --seed 0
+  --workers 0
 ```
 
 To initialize from a compatible YOLO11 checkpoint, add:
@@ -207,7 +207,7 @@ the target-domain dataset YAML.
 python scripts/predict.py \
   --weights /path/to/best.pt \
   --source /path/to/image_or_folder \
-  --text drone bird airplane helicopter \
+  --text airplane bird drone helicopter \
   --device 0
 ```
 
